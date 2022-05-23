@@ -95,12 +95,12 @@ function createTweet(conFrase = false) {
     T.post('statuses/update', {
         status: status
     }, function (err, data, response) {
-        logger.info(data)
+        console.log(data)
         axios.post('https://maker.ifttt.com/trigger/yaesfindesemana_sent/with/key/cniitvUyoM44HB1UY9ShQC', {
             value1: data.id_str,
             value2: data.text,
             value3: `https://twitter.com/YaEsFinDeSemana/status/${data.id_str}`
-        }).then(response => logger.info(response.data));
+        }).then(response => console.log(response.data));
     })
 }
 
