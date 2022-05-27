@@ -1,5 +1,7 @@
 const Twit = require('twit')
 const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc')
+dayjs.extend(utc);
 const relativeTime = require('dayjs/plugin/relativeTime')
 const fs = require('fs');
 const axios = require('axios');
@@ -36,7 +38,8 @@ router.get('/', (req, res) => {
     /**
     * OBTENCIÓN HORA
     */
-    const horaActual = dayjs().format('HH:mm').toString();
+    const horaActual = dayjs().utc(true).format('HH:mm').toString();
+    console.log(horaActual);
 
     const contentHoras = fs.readFileSync(pathHoras).toString();
     const horasDisponibles = contentHoras.split('\n');
