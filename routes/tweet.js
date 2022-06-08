@@ -40,7 +40,7 @@ router.get('/', (req, res) => {
     /**
     * OBTENCIÓN HORA
     */
-    const horaActual = dayjs().add(2, 'hour').tz("Europe/Madrid").format('HH:mm').toString();
+    const horaActual = dayjs().tz("Europe/Madrid").format('HH:mm').toString();
     console.log(horaActual);
 
     const contentHoras = fs.readFileSync(pathHoras).toString();
