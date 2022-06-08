@@ -8,6 +8,7 @@ const relativeTime = require('dayjs/plugin/relativeTime')
 const fs = require('fs');
 const axios = require('axios');
 const path = require('path');
+const Jimp = require('jimp');
 
 const router = require('express').Router();
 
@@ -29,7 +30,7 @@ const T = new Twit({
     strictSSL: true,
 })
 
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
     const pathHoras = path.join(path.resolve(__dirname, '..'), 'horas.txt')
     /**
      * ¿Frase?
@@ -51,6 +52,23 @@ router.get('/', (req, res) => {
     } else {
         console.log('NO Envía Tweet');
     }
+
+    // PRUEBA
+    const nextSaturday = dayjs(nextDate(6)).hour(0).minute(0).second(1).millisecond(0);
+
+    let hours = nextSaturday.diff(dayjs(), 'hours');
+    const days = Math.floor(hours / 24);
+    hours = hours - (days * 24);
+
+    console.log('Days: ', days);
+    console.log('Hours: ', hours);
+
+    const image = await Jimp.read('./public/images/banner.png');
+    const font = await Jimp.loadFont(Jimp.FONT_SANS_64_WHITE);
+    image.print(font, 529, 224, 'Hello World!');
+    await image.write('./public/images/banner_f.png');
+
+    // FIN PRUEBA
 
     res.json('Termina tweet')
 });
