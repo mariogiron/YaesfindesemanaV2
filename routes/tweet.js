@@ -9,10 +9,13 @@ const fs = require('fs');
 const axios = require('axios');
 const path = require('path');
 const Jimp = require('jimp');
+const { TwitterApi } = require('twitter-api-v2');
 
 const router = require('express').Router();
 
 require('dotenv').config();
+
+// const twitterClient = new TwitterApi(process.env.BEARER_TOKEN);
 
 require('dayjs/locale/es')
 dayjs().locale('es').format()
@@ -28,7 +31,17 @@ const T = new Twit({
     access_token_secret: process.env.ACCESS_TOKEN_SECRET,
     timeout_ms: 60 * 1000,
     strictSSL: true,
-})
+});
+
+const twitterClient = new TwitterApi({
+    appKey: process.env.CONSUMER_KEY,
+    appSecret: process.env.CONSUMER_SECRET,
+    // Following access tokens are not required if you are
+    // at part 1 of user-auth process (ask for a request token)
+    // or if you want a app-only client (see below)
+    accessToken: process.env.ACCESS_TOKEN,
+    accessSecret: process.env.ACCESS_TOKEN_SECRET,
+});
 
 router.get('/', async (req, res) => {
     const pathHoras = path.join(path.resolve(__dirname, '..'), 'horas.txt')
@@ -49,26 +62,10 @@ router.get('/', async (req, res) => {
     if (horasDisponibles.includes(horaActual)) {
         console.log('Envía Tweet');
         createTweet(conFrase);
+        updateBanner();
     } else {
         console.log('NO Envía Tweet');
     }
-
-    // PRUEBA
-    const nextSaturday = dayjs(nextDate(6)).hour(0).minute(0).second(1).millisecond(0);
-
-    let hours = nextSaturday.diff(dayjs(), 'hours');
-    const days = Math.floor(hours / 24);
-    hours = hours - (days * 24);
-
-    console.log('Days: ', days);
-    console.log('Hours: ', hours);
-
-    const image = await Jimp.read('./public/images/banner.png');
-    const font = await Jimp.loadFont(Jimp.FONT_SANS_64_WHITE);
-    image.print(font, 529, 224, 'Hello World!');
-    await image.write('./public/images/banner_f.png');
-
-    // FIN PRUEBA
 
     res.json('Termina tweet')
 });
@@ -135,6 +132,32 @@ function nextDate(dayIndex) {
 
 function pad(num) {
     return ("0" + num).slice(-2);
+}
+
+async function updateBanner() {
+    const nextSaturday = dayjs(nextDate(6)).hour(0).minute(0).second(1).millisecond(0);
+
+    let hours = nextSaturday.diff(dayjs(), 'hours');
+    const days = Math.floor(hours / 24);
+    hours = hours - (days * 24);
+
+    console.log('Days: ', days);
+    console.log('Hours: ', hours);
+
+    const image = await Jimp.read('./public/images/banner.png');
+    const font = await Jimp.loadFont(Jimp.FONT_SANS_64_WHITE);
+    image.print(font, 529, 224, `${days} ${days === 1 ? 'día' : 'días'} y ${hours} ${hours === 1 ? 'hora' : 'horas'}`);
+    await image.write('./public/images/banner_f.png');
+
+    const file = fs.readFileSync('./public/images/banner_f.png')
+
+    await twitterClient.v1.updateAccountProfileBanner(file, { width: 1500, height: 500, offset_left: 0 });
+    const updatedProfile = await twitterClient.currentUser();
+    const allBannerSizes = await twitterClient.v1.userProfileBannerSizes({ user_id: updatedProfile.id_str });
+
+    console.log('New banner! Max size at URL:', allBannerSizes.sizes['1500x500'].url);
+
+    // FIN PRUEBA
 }
 
 module.exports = router;
