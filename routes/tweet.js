@@ -146,7 +146,7 @@ async function updateBanner() {
 
     const image = await Jimp.read('./public/images/banner.png');
     const font = await Jimp.loadFont(Jimp.FONT_SANS_64_WHITE);
-    image.print(font, 529, 224, `${days} ${days === 1 ? 'día' : 'días'} y ${hours} ${hours === 1 ? 'hora' : 'horas'}`);
+    image.print(font, 512, 283, `${days} ${days === 1 ? 'día' : 'días'} y ${hours} ${hours === 1 ? 'hora' : 'horas'}`);
     await image.write('./public/images/banner_f.png');
 
     const file = fs.readFileSync('./public/images/banner_f.png')
