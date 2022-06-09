@@ -62,11 +62,11 @@ router.get('/', async (req, res) => {
     if (horasDisponibles.includes(horaActual)) {
         console.log('Envía Tweet');
         createTweet(conFrase);
-        await updateBanner();
+        // await updateBanner();
     } else {
         console.log('NO Envía Tweet');
     }
-
+    await updateBanner();
     res.json('Termina tweet')
 });
 
