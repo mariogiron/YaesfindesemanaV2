@@ -66,7 +66,7 @@ router.get('/', async (req, res) => {
     } else {
         console.log('NO Envía Tweet');
     }
-    await updateBanner();
+    // await updateBanner();
     res.json('Termina tweet')
 });
 
