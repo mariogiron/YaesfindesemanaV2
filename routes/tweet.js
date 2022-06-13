@@ -62,7 +62,7 @@ router.get('/', async (req, res) => {
     if (horasDisponibles.includes(horaActual)) {
         console.log('Envía Tweet');
         createTweet(conFrase);
-        await updateBanner();
+        // await updateBanner();
     } else {
         console.log('NO Envía Tweet');
     }
@@ -120,7 +120,10 @@ function createTweet(conFrase = false) {
             value1: data.id_str,
             value2: data.text,
             value3: `https://twitter.com/YaEsFinDeSemana/status/${data.id_str}`
-        }).then(response => console.log(response.data));
+        }).then(async response => {
+            console.log(response.data)
+            await updateBanner();
+        });
     })
 }
 
